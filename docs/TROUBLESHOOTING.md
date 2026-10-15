@@ -60,4 +60,4 @@ The scripts in this repository use a **3-tier resilient fallback architecture**:
 2. **Tier 2 (Test ID & Semantic Containers)**: Looks for data attributes like `[data-testid*="course"]`, `[data-test*="card"]`, and card wrappers.
 3. **Tier 3 (Heading Feed Fallback)**: Extracts all unique `h2`, `h3`, and `h4` headings across the feed while filtering out navigation labels like "Browse" or "My Learning".
 
-If you ever encounter a Coursera update that breaks parsing, please [open an issue](https://github.com/) with a snippet of the updated card HTML.
+If you ever encounter a Coursera update that breaks parsing, please [open an issue](https://github.com/KOS-CDG/coursera-certificate-extractor/issues) with a snippet of the updated card HTML.
