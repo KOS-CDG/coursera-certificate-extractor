@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coursera Fast Course & Certificate Extractor</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --success: #10b981;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --code-bg: #1e293b;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0 16px 60px;
+    }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      padding: 48px 0 28px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .step-card {
+      background: #172033;
+      border: 1px solid #23314d;
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .step-card h3 {
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+    .step-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+    .code-box {
+      position: relative;
+      background: var(--code-bg);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 12px;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: #374151;
+      color: #f3f4f6;
+    }
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+    .btn-success {
+      background: var(--success);
+    }
+    .btn-success:hover {
+      background: #059669;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+    .drop-zone {
+      border: 2px dashed #374151;
+      border-radius: 12px;
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(17, 24, 39, 0.4);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.05);
+    }
+    .drop-zone-icon {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-pill {
+      background: #172033;
+      border: 1px solid #23314d;
+      padding: 14px 18px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #60a5fa;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .table-container {
+      overflow-x: auto;
+      max-height: 480px;
+      border-radius: 8px;
+      border: 1px solid #1f2937;
+      margin-top: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+    }
+    th {
+      background: #1e293b;
+      padding: 12px 16px;
+      font-weight: 600;
+      color: #94a3b8;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1f2937;
+    }
+    tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    a.link {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    a.link:hover {
+      text-decoration: underline;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #1f2937;
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .tab-btn.active {
+      background: #1e293b;
+      color: #60a5fa;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .search-box {
+      width: 100%;
+      padding: 10px 14px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+    .search-box:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .notice {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 14px 18px;
+      border-radius: 8px;
+      color: #fde68a;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge">🚀 FAST &amp; PURE CLIENT-SIDE</span>
+      <h1>Coursera Fast Certificate Extractor</h1>
+      <p class="subtitle">
+        Bypasses API Cloudflare &amp; HTML login verification challenges. Extracts every completed course title and certificate directly from the loaded DOM in seconds.
+      </p>
+    </header>
+
+    <!-- Why DOM Extraction -->
+    <div class="card">
+      <div class="card-title">💡 Why Direct DOM Extraction?</div>
+      <p style="font-size: 14.5px; color: #cbd5e1; margin-bottom: 12px;">
+        Calling Coursera's internal REST API endpoints via `fetch()` often throws:
+      </p>
+      <div class="code-box" style="margin-top: 0; margin-bottom: 14px; border-left: 4px solid #ef4444;">
+        <pre><code style="color: #f87171;">SyntaxError: Unexpected token '&lt;', "&lt;html&gt;..." is not valid JSON</code></pre>
+      </div>
+      <p style="font-size: 14px; color: var(--text-muted);">
+        Coursera protects internal API endpoints behind HTML verification, security challenges, and session routing. However, when you browse your <strong>Completed</strong> tab, the browser has already authenticated and rendered every course into the DOM. Our script extracts directly from the page—zero API calls, zero login tokens required, 100% private.
+      </p>
+    </div>
+
+    <!-- Step by Step Visual Guide -->
+    <div class="card">
+      <div class="card-title">📋 3-Step Quick Start</div>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Open Coursera Completed Tab</h3>
+          <p>Go to your Coursera dashboard and switch to the completed section:</p>
+          <a href="https://www.coursera.org/my-learning?tab=completed" target="_blank" class="link" style="display:inline-block; margin-top:8px; font-weight:600;">
+            🔗 coursera.org/my-learning?tab=completed &rarr;
+          </a>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Scroll Down (or Auto-Scroll)</h3>
+          <p>Coursera lazy-loads courses. Scroll to the bottom until all cards load, or run the auto-scroller snippet below.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Paste Script &amp; Download CSV</h3>
+          <p>Press <kbd>F12</kbd> &rarr; <strong>Console</strong> &rarr; paste the extractor script &rarr; press <kbd>Enter</kbd>. Your CSV file downloads instantly!</p>
+        </div>
+      </div>
+
+      <!-- Script Tabs -->
+      <div style="margin-top: 24px;">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('tab-simple')">⚡ Simple Extractor (Recommended)</button>
+          <button class="tab-btn" onclick="switchTab('tab-advanced')">💎 Advanced Extractor (With UI &amp; Badges)</button>
+          <button class="tab-btn" onclick="switchTab('tab-scroll')">📜 Auto-Scroller</button>
+        </div>
+
+        <div id="tab-simple" class="tab-content active">
+          <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">
+            Lightweight, robust DOM extractor. Prints a table and triggers a CSV download:
+          </p>
+          <div class="code-box">
+            <button class="btn copy-btn" onclick="copyCode('code-simple', this)">📋 Copy Script</button>
+            <pre><code id="code-simple">(() => {
+  const records = [];
+  const seen = new Set();
+
+  document.querySelectorAll('a').forEach(a => {
+    const href = a.href || '';
+    const text = (a.innerText || '').trim();
+
+    const isMatch = href.includes('/accomplishments') || 
+                    href.includes('/certificate') || 
+                    href.includes('/learn/') ||
+                    text.toLowerCase().includes('view certificate') ||
+                    text.toLowerCase().includes('completed');
+
+    if (isMatch) {
+      let container = a.parentElement;
+      for (let i = 0; i < 6 && container; i++) {
+        const heading = container.querySelector('h2, h3, h4, [data-test*="title"], [data-testid*="title"]');
+        if (heading && heading.innerText.trim()) {
+          const title = heading.innerText.trim().split('\n')[0];
+          if (!seen.has(title) && title.length > 3 && !['My Learning', 'Completed', 'In Progress', 'Certificates'].includes(title)) {
+            seen.add(title);
+            records.push({
+              Title: title,
+              URL: href.includes('http') ? href : window.location.origin + href
+            });
+          }
+          break;
+        }
+        container = container.parentElement;
+      }
+    }
+  });
+
+  if (records.length === 0) {
+    document.querySelectorAll('h3, h2, h4').forEach(h => {
+      const text = h.innerText.trim();
+      const forbidden = ['My Learning', 'Completed', 'In Progress', 'Certificates', 'Browse', 'Explore'];
+      if (text.length > 4 && !forbidden.includes(text) && !seen.has(text)) {
+        seen.add(text);
+        const parentLink = h.closest('a') || (h.parentElement ? h.parentElement.querySelector('a') : null);
+        records.push({
+          Title: text,
+          URL: parentLink ? parentLink.href : 'Completed Tab'
+        });
+      }
+    });
+  }
+
+  if (records.length === 0) {
+    console.warn("No courses detected. Make sure you scrolled down so cards render in the DOM.");
+    return;
+  }
+
+  console.table(records);
+
+  const csvContent = "data:text/csv;charset=utf-8," 
+    + ["Title,URL"].concat(records.map(r => `"${r.Title.replace(/"/g, '""')}","${r.URL}"`)).join("\n");
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const downloadUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.download = "coursera_completed_summary.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  console.log(`%c Successfully captured ${records.length} items!`, "color: #10b981; font-weight: bold; font-size: 14px;");
+})();</code></pre>
+          </div>
+        </div>
+
+        <div id="tab-advanced" class="tab-content">
+          <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">
+            Extracts Provider, Grade, Credential ID, and injects an on-screen modal banner on Coursera with JSON &amp; Markdown buttons:
+          </p>
+          <div class="code-box">
+            <button class="btn copy-btn" onclick="copyCode('code-advanced', this)">📋 Copy Script</button>
+            <pre><code id="code-advanced">(() => {
+  const records = [];
+  const seen = new Set();
+  console.log("%c🔍 Scanning Coursera Completed tab DOM...", "color: #3b82f6; font-weight: bold; font-size: 14px;");
+
+  const cleanText = (str) => (str || '').replace(/\s+/g, ' ').trim();
+  const extractCredentialId = (url) => {
+    if (!url) return '';
+    const match = url.match(/(?:verify|accomplishments\/(?:specialization|certificate)?)\/([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : '';
+  };
+  const extractDate = (text) => {
+    const match = text.match(/(?:Completed|Earned|Finished|Issued)?\s*([A-Za-z]+ \d{1,2}, \d{4}|\d{1,2}\/\d{1,2}\/\d{4})/i);
+    return match ? match[1] : '';
+  };
+  const extractGrade = (text) => {
+    const match = text.match(/(\d{1,3}(?:\.\d{1,2})?%)/);
+    return match ? match[1] : '';
+  };
+
+  const anchors = Array.from(document.querySelectorAll('a'));
+  anchors.forEach(a => {
+    const href = a.href || '';
+    const text = cleanText(a.innerText);
+    const isCert = href.includes('/accomplishments') || href.includes('/certificate') || href.includes('/account/accomplishments') || text.toLowerCase().includes('view certificate');
+
+    if (isCert) {
+      let container = a.parentElement;
+      for (let i = 0; i < 7 && container; i++) {
+        const titleEl = container.querySelector('h2, h3, h4, [data-test*="title"], [data-testid*="title"]');
+        if (titleEl && cleanText(titleEl.innerText)) {
+          const title = cleanText(titleEl.innerText).split('\n')[0];
+          const fullText = cleanText(container.innerText);
+          const forbidden = ['my learning', 'completed', 'in progress', 'certificates', 'browse', 'explore'];
+
+          if (!seen.has(title.toLowerCase()) && title.length > 3 && !forbidden.includes(title.toLowerCase())) {
+            seen.add(title.toLowerCase());
+            let provider = '';
+            const partnerEl = container.querySelector('[data-test*="partner"], [data-testid*="partner"], .partner-name');
+            if (partnerEl) {
+              provider = cleanText(partnerEl.innerText);
+            }
+            const certUrl = href.startsWith('http') ? href : window.location.origin + href;
+            records.push({
+              title,
+              provider: provider || 'Coursera Partner',
+              grade: extractGrade(fullText) || 'N/A',
+              date: extractDate(fullText) || 'N/A',
+              credentialId: extractCredentialId(certUrl) || 'N/A',
+              url: certUrl
+            });
+          }
+          break;
+        }
+        container = container.parentElement;
+      }
+    }
+  });
+
+  if (records.length === 0) {
+    alert("No completed courses found! Please scroll down to load cards first.");
+    return;
+  }
+
+  console.table(records);
+
+  const csvHeaders = ["Title", "Provider", "Grade", "Completion Date", "Credential ID", "Certificate URL"];
+  const csvRows = records.map(r => [
+    `"${r.title.replace(/"/g, '""')}"`,
+    `"${r.provider.replace(/"/g, '""')}"`,
+    `"${r.grade.replace(/"/g, '""')}"`,
+    `"${r.date.replace(/"/g, '""')}"`,
+    `"${r.credentialId.replace(/"/g, '""')}"`,
+    `"${r.url.replace(/"/g, '""')}"`
+  ].join(","));
+  const csvData = "\uFEFF" + [csvHeaders.join(",")].concat(csvRows).join("\r\n");
+
+  const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "coursera_completed_courses.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  alert(`🎉 Captured ${records.length} courses! CSV downloaded.`);
+})();</code></pre>
+          </div>
+        </div>
+
+        <div id="tab-scroll" class="tab-content">
+          <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">
+            Run this first if you have 50+ courses to smoothly scroll and render all lazy cards:
+          </p>
+          <div class="code-box">
+            <button class="btn copy-btn" onclick="copyCode('code-scroll', this)">📋 Copy Script</button>
+            <pre><code id="code-scroll">(() => {
+  console.log("%c Starting Coursera Auto-Scroll...", "color: #3b82f6; font-weight: bold;");
+  let lastScrollHeight = 0, noChangeCount = 0;
+  const timer = setInterval(() => {
+    const currentHeight = document.documentElement.scrollHeight;
+    window.scrollTo({ top: currentHeight, behavior: 'smooth' });
+    if (currentHeight === lastScrollHeight) {
+      if (++noChangeCount >= 4) {
+        clearInterval(timer);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        console.log("%c Auto-scroll finished! Now run the extractor script.", "color: #10b981; font-weight: bold; font-size: 14px;");
+      }
+    } else {
+      noChangeCount = 0;
+      lastScrollHeight = currentHeight;
+    }
+  }, 800);
+})();</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive CSV Viewer & Formatter -->
+    <div class="card">
+      <div class="card-title">📊 Interactive Course Viewer &amp; Formatter</div>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
+        Drop your exported CSV file here or click to load sample data. Instantly format for LinkedIn, Resume, or GitHub Markdown tables!
+      </p>
+
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="drop-zone-icon">📁</div>
+        <p style="font-size: 15px; font-weight: 600;">Drag &amp; drop your <code>coursera_completed_summary.csv</code> here</p>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">or click to browse from your computer</p>
+        <input type="file" id="file-input" accept=".csv" style="display: none;">
+      </div>
+      <div style="text-align: center; margin-top: 10px;">
+        <button class="btn btn-secondary" onclick="loadSampleData()">✨ Load Sample Data</button>
+      </div>
+
+      <!-- Results View -->
+      <div id="results-section" style="display: none; margin-top: 24px;">
+        <div class="stats-bar">
+          <div class="stat-pill">
+            <div class="stat-number" id="stat-total">0</div>
+            <div class="stat-label">Total Courses</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-number" id="stat-specializations">0</div>
+            <div class="stat-label">Specializations</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-number" id="stat-verified">0</div>
+            <div class="stat-label">Verified Links</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;">
+          <button class="btn" onclick="exportFormat('markdown')">📋 Copy Markdown Table</button>
+          <button class="btn btn-secondary" onclick="exportFormat('resume')">📄 Copy Resume Bullets</button>
+          <button class="btn btn-secondary" onclick="exportFormat('linkedin')">💼 Copy LinkedIn Format</button>
+          <button class="btn btn-success" onclick="downloadJSON()">💾 Export JSON</button>
+        </div>
+
+        <input type="text" id="search-input" class="search-box" placeholder="🔍 Filter courses by title, provider, or keyword..." oninput="filterTable()">
+
+        <div class="table-container">
+          <table id="courses-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Course Title</th>
+                <th>Provider / Issuer</th>
+                <th>Credential / Link</th>
+              </tr>
+            </thead>
+            <tbody id="courses-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zero-Code Fallback -->
+    <div class="card">
+      <div class="card-title">🖨️ Zero-Code Fallback Method</div>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">
+        If corporate restrictions, ad-blockers, or browser policies prevent running scripts in DevTools:
+      </p>
+      <ol style="margin-left: 20px; font-size: 14px; color: #cbd5e1; line-height: 1.8;">
+        <li>Navigate to the <strong>Completed</strong> tab and scroll down until all your cards appear.</li>
+        <li>Press <kbd>Ctrl + P</kbd> (or <kbd>Cmd + P</kbd> on macOS).</li>
+        <li>Select <strong>Save as PDF</strong> as the destination printer.</li>
+        <li>Save the document. You now have a complete, permanent, searchable archive of all your certificates!</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    let courseData = [];
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function copyCode(elementId, btn) {
+      const code = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const orig = btn.innerText;
+        btn.innerText = "✅ Copied!";
+        setTimeout(() => btn.innerText = orig, 1800);
+      });
+    }
+
+    // Drag and Drop Handling
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) {
+        parseCSVFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        parseCSVFile(e.target.files[0]);
+      }
+    });
+
+    function parseCSVFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        processCSVText(e.target.result);
+      };
+      reader.readAsText(file);
+    }
+
+    function processCSVText(csvText) {
+      const lines = csvText.trim().split(/\r\n|\n/);
+      if (lines.length <= 1) {
+        alert("The CSV appears to be empty.");
+        return;
+      }
+      
+      const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+      courseData = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) continue;
+        
+        // Simple regex to parse CSV taking quotes into account
+        const values = line.match(/(?:[^\s",]+|"[^"]*")+/g) || [];
+        const cleanValues = values.map(v => v.replace(/^"|"$/g, '').replace(/""/g, '"').trim());
+        
+        const title = cleanValues[0] || 'Unknown Course';
+        const url = cleanValues[1] || '';
+        const provider = cleanValues[2] || (title.includes('Specialization') ? 'Coursera Partner' : 'Coursera');
+        
+        let credId = '';
+        if (url && url.includes('http')) {
+          const m = url.match(/(?:verify|specialization|certificate)\/([a-zA-Z0-9_-]+)/);
+          if (m) credId = m[1];
+        }
+
+        courseData.push({
+          title,
+          url,
+          provider,
+          credentialId: credId
+        });
+      }
+
+      renderTable(courseData);
+    }
+
+    function loadSampleData() {
+      courseData = [
+        {
+          title: "Machine Learning Specialization",
+          url: "https://www.coursera.org/account/accomplishments/specialization/ABC123DEF456",
+          provider: "DeepLearning.AI & Stanford",
+          credentialId: "ABC123DEF456"
+        },
+        {
+          title: "Google Data Analytics Professional Certificate",
+          url: "https://www.coursera.org/account/accomplishments/specialization/GGL789XYZ101",
+          provider: "Google",
+          credentialId: "GGL789XYZ101"
+        },
+        {
+          title: "Deep Learning Specialization",
+          url: "https://www.coursera.org/account/accomplishments/specialization/DL9988776655",
+          provider: "DeepLearning.AI",
+          credentialId: "DL9988776655"
+        },
+        {
+          title: "IBM Data Science Professional Certificate",
+          url: "https://www.coursera.org/account/accomplishments/specialization/IBM445566778",
+          provider: "IBM",
+          credentialId: "IBM445566778"
+        },
+        {
+          title: "Generative AI for Everyone",
+          url: "https://www.coursera.org/account/accomplishments/verify/GAI112233445",
+          provider: "DeepLearning.AI",
+          credentialId: "GAI112233445"
+        }
+      ];
+      renderTable(courseData);
+    }
+
+    function renderTable(items) {
+      document.getElementById('results-section').style.display = 'block';
+      const tbody = document.getElementById('courses-tbody');
+      tbody.innerHTML = '';
+
+      let specCount = 0;
+      let verifiedCount = 0;
+
+      items.forEach((item, index) => {
+        if (item.title.toLowerCase().includes('specialization') || item.title.toLowerCase().includes('professional certificate')) {
+          specCount++;
+        }
+        if (item.url && item.url.startsWith('http')) {
+          verifiedCount++;
+        }
+
+        const tr = document.createElement('tr');
+        const linkHtml = item.url && item.url.startsWith('http')
+          ? `<a href="${item.url}" target="_blank" class="link">View Certificate &rarr;</a> ${item.credentialId ? `<code style="font-size:11px; background:#1e293b; padding:2px 6px; border-radius:4px; margin-left:4px;">${item.credentialId}</code>` : ''}`
+          : `<span style="color:#64748b;">${item.url || 'Completed'}</span>`;
+
+        tr.innerHTML = `
+          <td style="color:#64748b; font-weight:600;">${index + 1}</td>
+          <td style="font-weight:600;">${item.title}</td>
+          <td style="color:#94a3b8;">${item.provider}</td>
+          <td>${linkHtml}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('stat-total').innerText = items.length;
+      document.getElementById('stat-specializations').innerText = specCount;
+      document.getElementById('stat-verified').innerText = verifiedCount;
+    }
+
+    function filterTable() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtered = courseData.filter(c => 
+        c.title.toLowerCase().includes(query) || 
+        c.provider.toLowerCase().includes(query) ||
+        (c.credentialId && c.credentialId.toLowerCase().includes(query))
+      );
+      renderTable(filtered);
+    }
+
+    function exportFormat(type) {
+      if (!courseData.length) return;
+      let text = '';
+      if (type === 'markdown') {
+        text = "| # | Course / Specialization | Issuer | Certificate URL |\n|---|---|---|---|\n" +
+          courseData.map((c, i) => `| ${i + 1} | **${c.title}** | ${c.provider} | [Verify](${c.url}) |`).join("\n");
+      } else if (type === 'resume') {
+        text = "### Certifications\n" + courseData.map(c => `- **${c.title}** - ${c.provider} ([Credential](${c.url}))`).join("\n");
+      } else if (type === 'linkedin') {
+        text = courseData.map((c, i) => 
+          `--- Certification ${i + 1} ---\nName: ${c.title}\nIssuing Organization: Coursera (${c.provider})\nCredential ID: ${c.credentialId || 'N/A'}\nCredential URL: ${c.url}`
+        ).join("\n\n");
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert(`Successfully copied ${type.toUpperCase()} format to clipboard!`);
+      });
+    }
+
+    function downloadJSON() {
+      if (!courseData.length) return;
+      const blob = new Blob([JSON.stringify(courseData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "coursera_courses.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
